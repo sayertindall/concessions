@@ -1,0 +1,3242 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+    <script>
+      L_NO_TOUCH = false;
+      L_DISABLE_3D = false;
+    </script>
+
+    <style>
+      html,
+      body {
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        overscroll-behavior: none;
+        touch-action: manipulation;
+      }
+    </style>
+    <style>
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
+        z-index: 1;
+      }
+      
+      /* Mobile-friendly popup styles */
+      .leaflet-popup-content {
+        max-width: 100%;
+        max-height: 60vh;
+        overflow-y: auto;
+        word-wrap: break-word;
+      }
+      
+      /* Larger touch targets for mobile */
+      .leaflet-control-zoom a {
+        width: 36px !important;
+        height: 36px !important;
+        line-height: 36px !important;
+      }
+      
+      /* Responsive marker tooltips */
+      .leaflet-tooltip {
+        max-width: 200px;
+        white-space: normal !important;
+        word-wrap: break-word;
+      }
+      
+      /* Mobile loading indicator */
+      .map-loading {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1000;
+        background: rgba(255, 255, 255, 0.8);
+        padding: 10px 20px;
+        border-radius: 5px;
+        display: none;
+      }
+      
+      /* Mobile-friendly cluster styles */
+      .marker-cluster {
+        background-clip: padding-box;
+        border-radius: 20px;
+      }
+      .marker-cluster div {
+        width: 36px;
+        height: 36px;
+        margin-left: 2px;
+        margin-top: 2px;
+        text-align: center;
+        border-radius: 18px;
+        font-size: 14px;
+        line-height: 36px;
+      }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"
+    />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0"
+    />
+    <style>
+      #map_00f78431f7922a453fb8a5487c940708 {
+        position: relative;
+        width: 100%;
+        height: 100%;
+        left: 0%;
+        top: 0%;
+      }
+      .leaflet-container {
+        font-size: 1rem;
+      }
+    </style>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  </head>
+  <body>
+    <div class="folium-map" id="map_00f78431f7922a453fb8a5487c940708"></div>
+    <div id="info-panel" style="display:none; position:absolute; bottom:10px; left:10px; right:10px; background:white; z-index:1000; padding:10px; border-radius:5px; box-shadow:0 0 10px rgba(0,0,0,0.2); max-height:40vh; overflow-y:auto;">
+      <button onclick="this.parentNode.style.display='none'" style="position:absolute; right:5px; top:5px; background:none; border:none; font-size:16px; cursor:pointer;">×</button>
+      <div id="info-content"></div>
+    </div>
+  </body>
+  <script>
+    var map_00f78431f7922a453fb8a5487c940708 = L.map(
+      "map_00f78431f7922a453fb8a5487c940708",
+      {
+        center: [-39.466042006024104, -69.36933904216868],
+        crs: L.CRS.EPSG3857,
+        ...{
+          zoom: 7,
+          zoomControl: false, /* We'll add it in a better position for mobile */
+          preferCanvas: true, /* Better performance on mobile */
+          bounceAtZoomLimits: false,
+          tap: true,
+          tapTolerance: 15,
+        },
+      }
+    );
+
+    var tile_layer_dfb7b399da9f3b90bd6f1d4fcf5bfff4 = L.tileLayer(
+      "https://mt1.google.com/vt/lyrs=p&x={x}&y={y}&z={z}",
+      {
+        minZoom: 0,
+        maxZoom: 18,
+        maxNativeZoom: 18,
+        noWrap: false,
+        attribution:
+          'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.',
+        subdomains: "abc",
+        detectRetina: false,
+        tms: false,
+        opacity: 1,
+      }
+    );
+
+    tile_layer_dfb7b399da9f3b90bd6f1d4fcf5bfff4.addTo(
+      map_00f78431f7922a453fb8a5487c940708
+    );
+    
+    // Add zoom control in a better position for mobile (bottom right)
+    L.control.zoom({
+      position: 'bottomright'
+    }).addTo(map_00f78431f7922a453fb8a5487c940708);
+    
+    // Add loading indicator
+    const loadingIndicator = L.DomUtil.create('div', 'map-loading');
+    loadingIndicator.innerHTML = 'Loading...';
+    document.body.appendChild(loadingIndicator);
+    
+    // Show loading indicator when map is busy
+    map_00f78431f7922a453fb8a5487c940708.on('loading', function() {
+      loadingIndicator.style.display = 'block';
+    });
+    map_00f78431f7922a453fb8a5487c940708.on('load', function() {
+      loadingIndicator.style.display = 'none';
+    });
+
+    var marker_cluster_302704c54a1b4ee850f8a4987bc9708a = L.markerClusterGroup({
+      maxClusterRadius: 50,
+      spiderfyOnMaxZoom: true,
+      showCoverageOnHover: false,
+      zoomToBoundsOnClick: true,
+      disableClusteringAtZoom: 15,
+      chunkedLoading: true,
+      animate: false
+    });
+
+    var geojsonFeature = {
+      type: "Feature",
+      properties: {
+        NOMBRE_DE_: "EL SAUCE",
+        CODIGO_DE_: "ELS",
+        EMPRESA_OP: "ENERGIA COMPAÑIA PETROLERA S.A.",
+        EMPRESA_IN: "CENTRAL INTERNATIONAL CORPORATION (SUCURSAL ARGENTINA)",
+        PARTICIPAC: "<br> ENERGIA COMPAÑIA PETROLERA S.A.: 100 %",
+        COMENTARIO:
+          "La geometría del área debe coinsiderarse provisoria, dado que la empresa operadora actual aún no ha informado los datos",
+        GEOJSON:
+          '{"type":"MultiPolygon","coordinates":[[[[-69.273262199,-39.479623617],[-69.4764107679999,-39.6032187769999],[-69.592783653,-39.486439928],[-69.5788725199999,-39.4864554769999],[-69.578764456,-39.4734181759999],[-69.5567140539999,-39.473525832],[-69.55673',
+        ALTA_PLANO: "2013-06-28 16:52:21.132818",
+        MODIFICACI: "2015-07-20 16:17:39.014128",
+      },
+      geometry: {
+        type: "Polygon",
+        coordinates: [
+          [
+            [-69.273262, -39.479624],
+            [-69.27314, -39.44836],
+            [-69.308647, -39.448271],
+            [-69.308605, -39.438742],
+            [-69.376877, -39.438541],
+            [-69.376769, -39.418424],
+            [-69.318981, -39.418597],
+            [-69.318864, -39.392833],
+            [-69.337465, -39.392804],
+            [-69.337465, -39.392815],
+            [-69.346605, -39.392788],
+            [-69.34661, -39.392788],
+            [-69.384269, -39.39267],
+            [-69.384321, -39.402063],
+            [-69.39919, -39.402013],
+            [-69.399251, -39.412688],
+            [-69.440009, -39.412541],
+            [-69.44002, -39.414249],
+            [-69.454892, -39.414191],
+            [-69.454936, -39.421023],
+            [-69.498454, -39.420845],
+            [-69.498566, -39.436642],
+            [-69.487774, -39.436688],
+            [-69.487987, -39.467175],
+            [-69.504296, -39.467105],
+            [-69.504335, -39.472484],
+            [-69.518667, -39.472421],
+            [-69.518639, -39.468578],
+            [-69.547854, -39.468444],
+            [-69.547911, -39.475703],
+            [-69.556731, -39.475661],
+            [-69.556714, -39.473526],
+            [-69.578764, -39.473418],
+            [-69.578873, -39.486455],
+            [-69.592784, -39.48644],
+            [-69.476411, -39.603219],
+            [-69.273262, -39.479624],
+          ],
+          [
+            [-69.393666, -39.463479],
+            [-69.344212, -39.451801],
+            [-69.337811, -39.46878],
+            [-69.387288, -39.48047],
+            [-69.393666, -39.463479],
+          ],
+          [
+            [-69.389732, -39.508176],
+            [-69.372836, -39.503458],
+            [-69.363921, -39.521842],
+            [-69.380822, -39.526561],
+            [-69.389732, -39.508176],
+          ],
+        ],
+      },
+    };
+
+    L.geoJSON(geojsonFeature).addTo(map_00f78431f7922a453fb8a5487c940708);
+
+    // Add this after the map initialization but before any markers
+    const wellMarkers = {};
+    const wellCoordinates = {};
+
+    // Add hash change handler
+    window.addEventListener("hashchange", function () {
+      const wellId = decodeURIComponent(location.hash.slice(1));
+      zoomToWell(wellId);
+    });
+
+    // Function to zoom to a well
+    // Add viewport height adjustment for mobile devices
+    function getAdjustedZoomLevel() {
+      return window.innerWidth < 768 ? 14 : 15; // Lower zoom level on mobile for better context
+    }
+    
+    function zoomToWell(wellId) {
+      const marker = wellMarkers[wellId];
+      const coords = wellCoordinates[wellId];
+      if (marker && coords) {
+        map_00f78431f7922a453fb8a5487c940708.setView(coords, getAdjustedZoomLevel());
+        marker.openPopup();
+      }
+    }
+
+    // Handle direct links with hash
+    if (location.hash) {
+      const wellId = decodeURIComponent(location.hash.slice(1));
+      setTimeout(() => zoomToWell(wellId), 1000);
+    }
+    
+    // Add mobile-specific functionality
+    function isMobile() {
+      return window.innerWidth <= 768;
+    }
+    
+    // Handle orientation changes
+    window.addEventListener('orientationchange', function() {
+      setTimeout(function() {
+        map_00f78431f7922a453fb8a5487c940708.invalidateSize();
+      }, 200);
+    });
+    
+    // Disable map drag when in popup scrolling
+    document.addEventListener('touchstart', function(e) {
+      if (e.target.closest('.leaflet-popup-content')) {
+        map_00f78431f7922a453fb8a5487c940708.dragging.disable();
+      }
+    }, {passive: true});
+    
+    document.addEventListener('touchend', function() {
+      map_00f78431f7922a453fb8a5487c940708.dragging.enable();
+    }, {passive: true});
+
+    var circle_marker_18fca08f39fbcdf5890f261ee4b4ed54 = L.circleMarker(
+      [-39.468946, -69.39177],
+      {
+        bubblingMouseEvents: true,
+        color: "#002bffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#002bffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    // Add this after each marker creation:
+    wellMarkers["YPF.Nq.ES-112"] =
+      circle_marker_18fca08f39fbcdf5890f261ee4b4ed54;
+    wellCoordinates["YPF.Nq.ES-112"] = [-39.468946, -69.39177];
+
+    var popup_42a43166135618b26d4239a63af0554b = L.popup({
+      maxWidth: window.innerWidth < 600 ? 240 : 300, // Smaller popups on mobile
+    });
+
+    var html_d24113155f25257744c97b1bc6057157 = $(
+      `<div id="html_d24113155f25257744c97b1bc6057157" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-112<br>         <b>ID:</b> 9032<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Parado Transitoriamente<br>         <b>Oil Production:</b> 560.90 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 14,320.72 m³<br>         </div>`
+    )[0];
+    popup_42a43166135618b26d4239a63af0554b.setContent(
+      html_d24113155f25257744c97b1bc6057157
+    );
+
+    circle_marker_18fca08f39fbcdf5890f261ee4b4ed54.bindPopup(
+      popup_42a43166135618b26d4239a63af0554b
+    );
+
+    circle_marker_18fca08f39fbcdf5890f261ee4b4ed54.bindTooltip(
+      `<div style="font-size:12px;white-space:normal;word-wrap:break-word;">
+                     YPF.Nq.ES-112 - 560.90 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    var circle_marker_1f1918c0823e16e9f3346ae329192702 = L.circleMarker(
+      [-39.465319, -69.36612],
+      {
+        bubblingMouseEvents: true,
+        color: "#ffd200ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#ffd200ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 9.371594711090287,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_c5f34645514351db96ed5afd6d18f009 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_67036a28aa50cb26c94c5223a71be46f = $(
+      `<div id="html_67036a28aa50cb26c94c5223a71be46f" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-11<br>         <b>ID:</b> 9030<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 8,287.94 m³<br>         <b>Gas Production:</b> 193.27 m³<br>         <b>Water Production:</b> 159,063.51 m³<br>         </div>`
+    )[0];
+    popup_c5f34645514351db96ed5afd6d18f009.setContent(
+      html_67036a28aa50cb26c94c5223a71be46f
+    );
+
+    circle_marker_1f1918c0823e16e9f3346ae329192702.bindPopup(
+      popup_c5f34645514351db96ed5afd6d18f009
+    );
+
+    circle_marker_1f1918c0823e16e9f3346ae329192702.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-11 - 8,287.94 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-11"] =
+      circle_marker_1f1918c0823e16e9f3346ae329192702;
+    wellCoordinates["YPF.Nq.ES-11"] = [-39.465319, -69.36612];
+
+    var circle_marker_d6d78ee355ed43feea3e543fd6058a4d = L.circleMarker(
+      [-39.46692, -69.352488],
+      {
+        bubblingMouseEvents: true,
+        color: "#005effff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#005effff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_16ed3107eeaf293d203b9c9c98650f58 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_ba6394510207cad22a1917bc290e7b06 = $(
+      `<div id="html_ba6394510207cad22a1917bc290e7b06" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-13<br>         <b>ID:</b> 9050<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Parado Transitoriamente<br>         <b>Oil Production:</b> 1,220.64 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 60,993.07 m³<br>         </div>`
+    )[0];
+    popup_16ed3107eeaf293d203b9c9c98650f58.setContent(
+      html_ba6394510207cad22a1917bc290e7b06
+    );
+
+    circle_marker_d6d78ee355ed43feea3e543fd6058a4d.bindPopup(
+      popup_16ed3107eeaf293d203b9c9c98650f58
+    );
+
+    circle_marker_d6d78ee355ed43feea3e543fd6058a4d.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-13 - 1,220.64 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-13"] =
+      circle_marker_d6d78ee355ed43feea3e543fd6058a4d;
+    wellCoordinates["YPF.Nq.ES-13"] = [-39.46692, -69.352488];
+
+    var circle_marker_5cd7a83839bf81fd0b2f2faebee0db84 = L.circleMarker(
+      [-39.47912, -69.41645],
+      {
+        bubblingMouseEvents: true,
+        color: "#dbff24ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#dbff24ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 6.959849313600557,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_46019ec92e74a491132dec7640c870e0 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_c7aedf6faeb690576e49d65274466b6a = $(
+      `<div id="html_c7aedf6faeb690576e49d65274466b6a" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-137<br>         <b>ID:</b> 9058<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 6,155.07 m³<br>         <b>Gas Production:</b> 272.00 m³<br>         <b>Water Production:</b> 153,094.88 m³<br>         </div>`
+    )[0];
+    popup_46019ec92e74a491132dec7640c870e0.setContent(
+      html_c7aedf6faeb690576e49d65274466b6a
+    );
+
+    circle_marker_5cd7a83839bf81fd0b2f2faebee0db84.bindPopup(
+      popup_46019ec92e74a491132dec7640c870e0
+    );
+
+    circle_marker_5cd7a83839bf81fd0b2f2faebee0db84.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-137 - 6,155.07 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-137"] =
+      circle_marker_5cd7a83839bf81fd0b2f2faebee0db84;
+    wellCoordinates["YPF.Nq.ES-137"] = [-39.47912, -69.41645];
+
+    var circle_marker_ca58d9bcbc10955105ffd930f51af31b = L.circleMarker(
+      [-39.47762, -69.40581],
+      {
+        bubblingMouseEvents: true,
+        color: "#ff0000ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#ff0000ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 10,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_c4fe91f25f1b784926be11987e709f72 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_851a4f66fb187dafba7710cdd868b881 = $(
+      `<div id="html_851a4f66fb187dafba7710cdd868b881" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-129<br>         <b>ID:</b> 9049<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 13,265.53 m³<br>         <b>Gas Production:</b> 25,204.08 m³<br>         <b>Water Production:</b> 107,907.69 m³<br>         </div>`
+    )[0];
+    popup_c4fe91f25f1b784926be11987e709f72.setContent(
+      html_851a4f66fb187dafba7710cdd868b881
+    );
+
+    circle_marker_ca58d9bcbc10955105ffd930f51af31b.bindPopup(
+      popup_c4fe91f25f1b784926be11987e709f72
+    );
+
+    circle_marker_ca58d9bcbc10955105ffd930f51af31b.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-129 - 13,265.53 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-129"] =
+      circle_marker_ca58d9bcbc10955105ffd930f51af31b;
+    wellCoordinates["YPF.Nq.ES-129"] = [-39.47762, -69.40581];
+
+    var circle_marker_dc12e606175fe61c4c935499e59bd7ac = L.circleMarker(
+      [-39.47413, -69.41267],
+      {
+        bubblingMouseEvents: true,
+        color: "#13ffecff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#13ffecff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_44cd65a4a98051061bb8218461941653 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_8220fb1febc0ee9b9d26210acc4e37b3 = $(
+      `<div id="html_8220fb1febc0ee9b9d26210acc4e37b3" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-133<br>         <b>ID:</b> 9054<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 3,568.30 m³<br>         <b>Gas Production:</b> 68.65 m³<br>         <b>Water Production:</b> 55,775.41 m³<br>         </div>`
+    )[0];
+    popup_44cd65a4a98051061bb8218461941653.setContent(
+      html_8220fb1febc0ee9b9d26210acc4e37b3
+    );
+
+    circle_marker_dc12e606175fe61c4c935499e59bd7ac.bindPopup(
+      popup_44cd65a4a98051061bb8218461941653
+    );
+
+    circle_marker_dc12e606175fe61c4c935499e59bd7ac.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-133 - 3,568.30 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-133"] =
+      circle_marker_dc12e606175fe61c4c935499e59bd7ac;
+    wellCoordinates["YPF.Nq.ES-133"] = [-39.47413, -69.41267];
+
+    var circle_marker_d425679cf180546703778b1ee476da72 = L.circleMarker(
+      [-39.47313, -69.40191],
+      {
+        bubblingMouseEvents: true,
+        color: "#0046ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0046ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_74de56556f8d3bc24f919badd1d29878 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_04dbea69224dcdf8d85fac0d845d2335 = $(
+      `<div id="html_04dbea69224dcdf8d85fac0d845d2335" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-126<br>         <b>ID:</b> 9046<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 916.31 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 16,253.59 m³<br>         </div>`
+    )[0];
+    popup_74de56556f8d3bc24f919badd1d29878.setContent(
+      html_04dbea69224dcdf8d85fac0d845d2335
+    );
+
+    circle_marker_d425679cf180546703778b1ee476da72.bindPopup(
+      popup_74de56556f8d3bc24f919badd1d29878
+    );
+
+    circle_marker_d425679cf180546703778b1ee476da72.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-126 - 916.31 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-126"] =
+      circle_marker_d425679cf180546703778b1ee476da72;
+    wellCoordinates["YPF.Nq.ES-126"] = [-39.47313, -69.40191];
+
+    var circle_marker_0b4a9941cd21c4d8fdc91cc62ec4c926 = L.circleMarker(
+      [-39.46367, -69.33761],
+      {
+        bubblingMouseEvents: true,
+        color: "#00ccffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#00ccffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_2fc575b712da2259314ba8422562365b = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_b43d2af43cf29a0979ef2eb4b5171b59 = $(
+      `<div id="html_b43d2af43cf29a0979ef2eb4b5171b59" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-17<br>         <b>ID:</b> 9069<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Espera de Reparación<br>         <b>Oil Production:</b> 2,652.40 m³<br>         <b>Gas Production:</b> 79.24 m³<br>         <b>Water Production:</b> 73,008.87 m³<br>         </div>`
+    )[0];
+    popup_2fc575b712da2259314ba8422562365b.setContent(
+      html_b43d2af43cf29a0979ef2eb4b5171b59
+    );
+
+    circle_marker_0b4a9941cd21c4d8fdc91cc62ec4c926.bindPopup(
+      popup_2fc575b712da2259314ba8422562365b
+    );
+
+    circle_marker_0b4a9941cd21c4d8fdc91cc62ec4c926.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-17 - 2,652.40 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-17"] =
+      circle_marker_0b4a9941cd21c4d8fdc91cc62ec4c926;
+    wellCoordinates["YPF.Nq.ES-17"] = [-39.46367, -69.33761];
+
+    var circle_marker_8c101d65b6ed562ac98b1c2238dd76fd = L.circleMarker(
+      [-39.46984, -69.359874],
+      {
+        bubblingMouseEvents: true,
+        color: "#56ffa9ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#56ffa9ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5.020218232670658,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_4b047773cd1fd723c09a0c999ef37e55 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_494d7edcdf79c3b1fcc0e96f33a07a5b = $(
+      `<div id="html_494d7edcdf79c3b1fcc0e96f33a07a5b" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> SJ.Nq.ES-147<br>         <b>ID:</b> 9066<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 4,439.72 m³<br>         <b>Gas Production:</b> 1.70 m³<br>         <b>Water Production:</b> 77,156.14 m³<br>         </div>`
+    )[0];
+    popup_4b047773cd1fd723c09a0c999ef37e55.setContent(
+      html_494d7edcdf79c3b1fcc0e96f33a07a5b
+    );
+
+    circle_marker_8c101d65b6ed562ac98b1c2238dd76fd.bindPopup(
+      popup_4b047773cd1fd723c09a0c999ef37e55
+    );
+
+    circle_marker_8c101d65b6ed562ac98b1c2238dd76fd.bindTooltip(
+      `<div>
+                     SJ.Nq.ES-147 - 4,439.72 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["SJ.Nq.ES-147"] =
+      circle_marker_8c101d65b6ed562ac98b1c2238dd76fd;
+    wellCoordinates["SJ.Nq.ES-147"] = [-39.46984, -69.359874];
+
+    var circle_marker_aa23bf27aa8f6298b0e8b12ca9acc8ef = L.circleMarker(
+      [-39.47215, -69.35953],
+      {
+        bubblingMouseEvents: true,
+        color: "#ff7c00ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#ff7c00ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 10,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_e8ddeedb4476cc082c30a2ac1739ae1d = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_b7a81ad5dd32892b509fe387b728b02c = $(
+      `<div id="html_b7a81ad5dd32892b509fe387b728b02c" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-18<br>         <b>ID:</b> 9070<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Espera de Reparación<br>         <b>Oil Production:</b> 10,768.07 m³<br>         <b>Gas Production:</b> 210.73 m³<br>         <b>Water Production:</b> 132,145.55 m³<br>         </div>`
+    )[0];
+    popup_e8ddeedb4476cc082c30a2ac1739ae1d.setContent(
+      html_b7a81ad5dd32892b509fe387b728b02c
+    );
+
+    circle_marker_aa23bf27aa8f6298b0e8b12ca9acc8ef.bindPopup(
+      popup_e8ddeedb4476cc082c30a2ac1739ae1d
+    );
+
+    circle_marker_aa23bf27aa8f6298b0e8b12ca9acc8ef.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-18 - 10,768.07 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-18"] =
+      circle_marker_aa23bf27aa8f6298b0e8b12ca9acc8ef;
+    wellCoordinates["YPF.Nq.ES-18"] = [-39.47215, -69.35953];
+
+    var circle_marker_c10992c275a2bb11ecb3b2454e028005 = L.circleMarker(
+      [-39.468883, -69.359371],
+      {
+        bubblingMouseEvents: true,
+        color: "#0001ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0001ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_ac865cf8cc4e92bce9f84439a2cc3c5b = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_e3899ee4a109a6f4fe3b8a6c6944e0c7 = $(
+      `<div id="html_e3899ee4a109a6f4fe3b8a6c6944e0c7" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-16<br>         <b>ID:</b> 9068<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Inyección Efectiva<br>         <b>Oil Production:</b> 15.44 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 3,350.38 m³<br>         </div>`
+    )[0];
+    popup_ac865cf8cc4e92bce9f84439a2cc3c5b.setContent(
+      html_e3899ee4a109a6f4fe3b8a6c6944e0c7
+    );
+
+    circle_marker_c10992c275a2bb11ecb3b2454e028005.bindPopup(
+      popup_ac865cf8cc4e92bce9f84439a2cc3c5b
+    );
+
+    circle_marker_c10992c275a2bb11ecb3b2454e028005.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-16 - 15.44 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-16"] =
+      circle_marker_c10992c275a2bb11ecb3b2454e028005;
+    wellCoordinates["YPF.Nq.ES-16"] = [-39.468883, -69.359371];
+
+    var circle_marker_6a538229a921788a201f69d00fc54e32 = L.circleMarker(
+      [-39.467148, -69.362532],
+      {
+        bubblingMouseEvents: true,
+        color: "#63ff9cff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#63ff9cff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5.210245695178174,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_b0822fd91ce793c9fe7127228925edcc = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_c712c29f59c932049e315848e0771dd8 = $(
+      `<div id="html_c712c29f59c932049e315848e0771dd8" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-3<br>         <b>ID:</b> 9083<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Espera de Reparación<br>         <b>Oil Production:</b> 4,607.78 m³<br>         <b>Gas Production:</b> 117.60 m³<br>         <b>Water Production:</b> 65,268.54 m³<br>         </div>`
+    )[0];
+    popup_b0822fd91ce793c9fe7127228925edcc.setContent(
+      html_c712c29f59c932049e315848e0771dd8
+    );
+
+    circle_marker_6a538229a921788a201f69d00fc54e32.bindPopup(
+      popup_b0822fd91ce793c9fe7127228925edcc
+    );
+
+    circle_marker_6a538229a921788a201f69d00fc54e32.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-3 - 4,607.78 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-3"] = circle_marker_6a538229a921788a201f69d00fc54e32;
+    wellCoordinates["YPF.Nq.ES-3"] = [-39.467148, -69.362532];
+
+    var circle_marker_1aabdccc492be3a5049e5a8219150d5c = L.circleMarker(
+      [-39.461531, -69.348268],
+      {
+        bubblingMouseEvents: true,
+        color: "#40ffbfff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#40ffbfff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_d41071cf2eedcb718407e419a6c78bde = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_a1eb9ea31570932081bdc02eb9750482 = $(
+      `<div id="html_a1eb9ea31570932081bdc02eb9750482" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-31<br>         <b>ID:</b> 9085<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 4,147.32 m³<br>         <b>Gas Production:</b> 231.41 m³<br>         <b>Water Production:</b> 141,864.27 m³<br>         </div>`
+    )[0];
+    popup_d41071cf2eedcb718407e419a6c78bde.setContent(
+      html_a1eb9ea31570932081bdc02eb9750482
+    );
+
+    circle_marker_1aabdccc492be3a5049e5a8219150d5c.bindPopup(
+      popup_d41071cf2eedcb718407e419a6c78bde
+    );
+
+    circle_marker_1aabdccc492be3a5049e5a8219150d5c.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-31 - 4,147.32 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-31"] =
+      circle_marker_1aabdccc492be3a5049e5a8219150d5c;
+    wellCoordinates["YPF.Nq.ES-31"] = [-39.461531, -69.348268];
+
+    var circle_marker_792a8900ce261b2a24f51abd8d060fe5 = L.circleMarker(
+      [-39.474687, -69.373807],
+      {
+        bubblingMouseEvents: true,
+        color: "#00c8ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#00c8ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_cc0eb0a7caf5638822093080eceababc = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_4fe9b522edf1c9310c9f036971a0bbaa = $(
+      `<div id="html_4fe9b522edf1c9310c9f036971a0bbaa" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-24<br>         <b>ID:</b> 9077<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Parado Transitoriamente<br>         <b>Oil Production:</b> 2,603.82 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 17,807.03 m³<br>         </div>`
+    )[0];
+    popup_cc0eb0a7caf5638822093080eceababc.setContent(
+      html_4fe9b522edf1c9310c9f036971a0bbaa
+    );
+
+    circle_marker_792a8900ce261b2a24f51abd8d060fe5.bindPopup(
+      popup_cc0eb0a7caf5638822093080eceababc
+    );
+
+    circle_marker_792a8900ce261b2a24f51abd8d060fe5.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-24 - 2,603.82 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-24"] =
+      circle_marker_792a8900ce261b2a24f51abd8d060fe5;
+    wellCoordinates["YPF.Nq.ES-24"] = [-39.474687, -69.373807];
+
+    var circle_marker_78bc0281ffe471997d7fd5ffa2ccd220 = L.circleMarker(
+      [-39.463223, -69.34481],
+      {
+        bubblingMouseEvents: true,
+        color: "#00e7ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#00e7ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_deb7be38f2afb1a7daabd1d7c1be28b2 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_3d6027b459b92104fa594d56c83fe537 = $(
+      `<div id="html_3d6027b459b92104fa594d56c83fe537" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-32<br>         <b>ID:</b> 9086<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Espera de Reparación<br>         <b>Oil Production:</b> 2,993.31 m³<br>         <b>Gas Production:</b> 56.51 m³<br>         <b>Water Production:</b> 107,148.28 m³<br>         </div>`
+    )[0];
+    popup_deb7be38f2afb1a7daabd1d7c1be28b2.setContent(
+      html_3d6027b459b92104fa594d56c83fe537
+    );
+
+    circle_marker_78bc0281ffe471997d7fd5ffa2ccd220.bindPopup(
+      popup_deb7be38f2afb1a7daabd1d7c1be28b2
+    );
+
+    circle_marker_78bc0281ffe471997d7fd5ffa2ccd220.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-32 - 2,993.31 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-32"] =
+      circle_marker_78bc0281ffe471997d7fd5ffa2ccd220;
+    wellCoordinates["YPF.Nq.ES-32"] = [-39.463223, -69.34481];
+
+    var circle_marker_d46aede7d02636308028159e4b5128e4 = L.circleMarker(
+      [-39.465599, -69.341492],
+      {
+        bubblingMouseEvents: true,
+        color: "#0069ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0069ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_21230525665e618c5085f0a41c887faa = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_32b7eb4ca1ad9b980ab99130ae27763d = $(
+      `<div id="html_32b7eb4ca1ad9b980ab99130ae27763d" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-33<br>         <b>ID:</b> 9087<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Espera de Reparación<br>         <b>Oil Production:</b> 1,367.03 m³<br>         <b>Gas Production:</b> 135.95 m³<br>         <b>Water Production:</b> 67,998.26 m³<br>         </div>`
+    )[0];
+    popup_21230525665e618c5085f0a41c887faa.setContent(
+      html_32b7eb4ca1ad9b980ab99130ae27763d
+    );
+
+    circle_marker_d46aede7d02636308028159e4b5128e4.bindPopup(
+      popup_21230525665e618c5085f0a41c887faa
+    );
+
+    circle_marker_d46aede7d02636308028159e4b5128e4.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-33 - 1,367.03 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-33"] =
+      circle_marker_d46aede7d02636308028159e4b5128e4;
+    wellCoordinates["YPF.Nq.ES-33"] = [-39.465599, -69.341492];
+
+    var circle_marker_8c86ebbfe51e8ead0ff6fb65eab7b65a = L.circleMarker(
+      [-39.46711, -69.33092],
+      {
+        bubblingMouseEvents: true,
+        color: "#07fff8ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#07fff8ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_296db16d71ac3784f58ab55c622204d2 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_fe9edd439cc8463b4480c8dc0006053f = $(
+      `<div id="html_fe9edd439cc8463b4480c8dc0006053f" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-39<br>         <b>ID:</b> 9093<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 3,412.13 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 92,268.62 m³<br>         </div>`
+    )[0];
+    popup_296db16d71ac3784f58ab55c622204d2.setContent(
+      html_fe9edd439cc8463b4480c8dc0006053f
+    );
+
+    circle_marker_8c86ebbfe51e8ead0ff6fb65eab7b65a.bindPopup(
+      popup_296db16d71ac3784f58ab55c622204d2
+    );
+
+    circle_marker_8c86ebbfe51e8ead0ff6fb65eab7b65a.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-39 - 3,412.13 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-39"] =
+      circle_marker_8c86ebbfe51e8ead0ff6fb65eab7b65a;
+    wellCoordinates["YPF.Nq.ES-39"] = [-39.46711, -69.33092];
+
+    var circle_marker_dd511b8a5e49729220da333e147f2f4a = L.circleMarker(
+      [-39.473709, -69.356142],
+      {
+        bubblingMouseEvents: true,
+        color: "#0000ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0000ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_1725fa67e48765cdc0f4e91c598e4784 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_3744c746435f16987f73aafb739a7ada = $(
+      `<div id="html_3744c746435f16987f73aafb739a7ada" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-46<br>         <b>ID:</b> 9101<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Parado Transitoriamente<br>         <b>Oil Production:</b> 8.25 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 118.17 m³<br>         </div>`
+    )[0];
+    popup_1725fa67e48765cdc0f4e91c598e4784.setContent(
+      html_3744c746435f16987f73aafb739a7ada
+    );
+
+    circle_marker_dd511b8a5e49729220da333e147f2f4a.bindPopup(
+      popup_1725fa67e48765cdc0f4e91c598e4784
+    );
+
+    circle_marker_dd511b8a5e49729220da333e147f2f4a.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-46 - 8.25 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-46"] =
+      circle_marker_dd511b8a5e49729220da333e147f2f4a;
+    wellCoordinates["YPF.Nq.ES-46"] = [-39.473709, -69.356142];
+
+    var circle_marker_9177b7c6f12366189770b87dda747e90 = L.circleMarker(
+      [-39.469516, -69.37771],
+      {
+        bubblingMouseEvents: true,
+        color: "#0002ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0002ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_2dca2552f56020a75a8d33d67870691e = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_db3a5637c0b4fcf6b93e7ab63299b0a4 = $(
+      `<div id="html_db3a5637c0b4fcf6b93e7ab63299b0a4" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-49<br>         <b>ID:</b> 9104<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Abandonado<br>         <b>Oil Production:</b> 27.65 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 222.95 m³<br>         </div>`
+    )[0];
+    popup_2dca2552f56020a75a8d33d67870691e.setContent(
+      html_db3a5637c0b4fcf6b93e7ab63299b0a4
+    );
+
+    circle_marker_9177b7c6f12366189770b87dda747e90.bindPopup(
+      popup_2dca2552f56020a75a8d33d67870691e
+    );
+
+    circle_marker_9177b7c6f12366189770b87dda747e90.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-49 - 27.65 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-49"] =
+      circle_marker_9177b7c6f12366189770b87dda747e90;
+    wellCoordinates["YPF.Nq.ES-49"] = [-39.469516, -69.37771];
+
+    var circle_marker_38f7a2094194ad48cf91bb219d4e37af = L.circleMarker(
+      [-39.46927, -69.32065],
+      {
+        bubblingMouseEvents: true,
+        color: "#ff8000ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#ff8000ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 10,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_20d4c417e516e492f4134ce01e0178cf = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_488840c4fff9b3e3e3cb6ae4682ddc62 = $(
+      `<div id="html_488840c4fff9b3e3e3cb6ae4682ddc62" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-35<br>         <b>ID:</b> 9089<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 10,686.92 m³<br>         <b>Gas Production:</b> 1.06 m³<br>         <b>Water Production:</b> 297,085.01 m³<br>         </div>`
+    )[0];
+    popup_20d4c417e516e492f4134ce01e0178cf.setContent(
+      html_488840c4fff9b3e3e3cb6ae4682ddc62
+    );
+
+    circle_marker_38f7a2094194ad48cf91bb219d4e37af.bindPopup(
+      popup_20d4c417e516e492f4134ce01e0178cf
+    );
+
+    circle_marker_38f7a2094194ad48cf91bb219d4e37af.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-35 - 10,686.92 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-35"] =
+      circle_marker_38f7a2094194ad48cf91bb219d4e37af;
+    wellCoordinates["YPF.Nq.ES-35"] = [-39.46927, -69.32065];
+
+    var circle_marker_2e8210d9c8177c5473e5636af2d54408 = L.circleMarker(
+      [-39.47025, -69.33128],
+      {
+        bubblingMouseEvents: true,
+        color: "#00abffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#00abffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_9d7d33a50848afc74008a6353f95192d = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_e93e239811c2769cee76f7c2647169ef = $(
+      `<div id="html_e93e239811c2769cee76f7c2647169ef" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-40<br>         <b>ID:</b> 9095<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Espera de Reparación<br>         <b>Oil Production:</b> 2,227.05 m³<br>         <b>Gas Production:</b> 234.74 m³<br>         <b>Water Production:</b> 146,546.48 m³<br>         </div>`
+    )[0];
+    popup_9d7d33a50848afc74008a6353f95192d.setContent(
+      html_e93e239811c2769cee76f7c2647169ef
+    );
+
+    circle_marker_2e8210d9c8177c5473e5636af2d54408.bindPopup(
+      popup_9d7d33a50848afc74008a6353f95192d
+    );
+
+    circle_marker_2e8210d9c8177c5473e5636af2d54408.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-40 - 2,227.05 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-40"] =
+      circle_marker_2e8210d9c8177c5473e5636af2d54408;
+    wellCoordinates["YPF.Nq.ES-40"] = [-39.47025, -69.33128];
+
+    var circle_marker_5ef93ed9d773b976e00d526b3fda2767 = L.circleMarker(
+      [-39.46189, -69.34106],
+      {
+        bubblingMouseEvents: true,
+        color: "#000cffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#000cffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_169e5e596e0bdc1fe9ec34e977eef12e = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_3b4ddb058924e9d8e796e5d9d28b7656 = $(
+      `<div id="html_3b4ddb058924e9d8e796e5d9d28b7656" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-50<br>         <b>ID:</b> 9106<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Parado Transitoriamente<br>         <b>Oil Production:</b> 166.97 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 2,481.24 m³<br>         </div>`
+    )[0];
+    popup_169e5e596e0bdc1fe9ec34e977eef12e.setContent(
+      html_3b4ddb058924e9d8e796e5d9d28b7656
+    );
+
+    circle_marker_5ef93ed9d773b976e00d526b3fda2767.bindPopup(
+      popup_169e5e596e0bdc1fe9ec34e977eef12e
+    );
+
+    circle_marker_5ef93ed9d773b976e00d526b3fda2767.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-50 - 166.97 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-50"] =
+      circle_marker_5ef93ed9d773b976e00d526b3fda2767;
+    wellCoordinates["YPF.Nq.ES-50"] = [-39.46189, -69.34106];
+
+    var circle_marker_484dfb72106043e6754dae4823d88fba = L.circleMarker(
+      [-39.46534, -69.33422],
+      {
+        bubblingMouseEvents: true,
+        color: "#00d4ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#00d4ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_cd363e59d03cc3ee3d091351d681ee87 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_0c3b2af559450b55574999251ec10293 = $(
+      `<div id="html_0c3b2af559450b55574999251ec10293" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-51<br>         <b>ID:</b> 9107<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Parado Transitoriamente<br>         <b>Oil Production:</b> 2,758.14 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 42,135.88 m³<br>         </div>`
+    )[0];
+    popup_cd363e59d03cc3ee3d091351d681ee87.setContent(
+      html_0c3b2af559450b55574999251ec10293
+    );
+
+    circle_marker_484dfb72106043e6754dae4823d88fba.bindPopup(
+      popup_cd363e59d03cc3ee3d091351d681ee87
+    );
+
+    circle_marker_484dfb72106043e6754dae4823d88fba.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-51 - 2,758.14 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-51"] =
+      circle_marker_484dfb72106043e6754dae4823d88fba;
+    wellCoordinates["YPF.Nq.ES-51"] = [-39.46534, -69.33422];
+
+    var circle_marker_816e8d70fd3458e120f8bc11f3f81af1 = L.circleMarker(
+      [-39.46516, -69.373298],
+      {
+        bubblingMouseEvents: true,
+        color: "#0001ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0001ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_ae9834241aa09ff6a44cc9a7719fe570 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_f19595d0fef906f836eae8b99d62410a = $(
+      `<div id="html_f19595d0fef906f836eae8b99d62410a" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-52<br>         <b>ID:</b> 9108<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 13.90 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 1,901.37 m³<br>         </div>`
+    )[0];
+    popup_ae9834241aa09ff6a44cc9a7719fe570.setContent(
+      html_f19595d0fef906f836eae8b99d62410a
+    );
+
+    circle_marker_816e8d70fd3458e120f8bc11f3f81af1.bindPopup(
+      popup_ae9834241aa09ff6a44cc9a7719fe570
+    );
+
+    circle_marker_816e8d70fd3458e120f8bc11f3f81af1.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-52 - 13.90 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-52"] =
+      circle_marker_816e8d70fd3458e120f8bc11f3f81af1;
+    wellCoordinates["YPF.Nq.ES-52"] = [-39.46516, -69.373298];
+
+    var circle_marker_b5f4eaa46bafd3da80d5931880c58152 = L.circleMarker(
+      [-39.462241, -69.365704],
+      {
+        bubblingMouseEvents: true,
+        color: "#001cffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#001cffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_158f45a476269d26afd00703d29ef217 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_383730937d3bdbf362440aa6a01a4470 = $(
+      `<div id="html_383730937d3bdbf362440aa6a01a4470" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-54<br>         <b>ID:</b> 9110<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 370.32 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 1,486.60 m³<br>         </div>`
+    )[0];
+    popup_158f45a476269d26afd00703d29ef217.setContent(
+      html_383730937d3bdbf362440aa6a01a4470
+    );
+
+    circle_marker_b5f4eaa46bafd3da80d5931880c58152.bindPopup(
+      popup_158f45a476269d26afd00703d29ef217
+    );
+
+    circle_marker_b5f4eaa46bafd3da80d5931880c58152.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-54 - 370.32 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-54"] =
+      circle_marker_b5f4eaa46bafd3da80d5931880c58152;
+    wellCoordinates["YPF.Nq.ES-54"] = [-39.462241, -69.365704];
+
+    var circle_marker_d989ddd4a3854cae7f105114134a9d65 = L.circleMarker(
+      [-39.459888, -69.351453],
+      {
+        bubblingMouseEvents: true,
+        color: "#ffeb00ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#ffeb00ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 8.349384240756414,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_e1822667cd503cc8df69c6efa4ebdc8f = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_c39d42f052da410c94ab5a9ba4064627 = $(
+      `<div id="html_c39d42f052da410c94ab5a9ba4064627" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-59<br>         <b>ID:</b> 9115<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 7,383.93 m³<br>         <b>Gas Production:</b> 261.83 m³<br>         <b>Water Production:</b> 177,377.66 m³<br>         </div>`
+    )[0];
+    popup_e1822667cd503cc8df69c6efa4ebdc8f.setContent(
+      html_c39d42f052da410c94ab5a9ba4064627
+    );
+
+    circle_marker_d989ddd4a3854cae7f105114134a9d65.bindPopup(
+      popup_e1822667cd503cc8df69c6efa4ebdc8f
+    );
+
+    circle_marker_d989ddd4a3854cae7f105114134a9d65.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-59 - 7,383.93 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-59"] =
+      circle_marker_d989ddd4a3854cae7f105114134a9d65;
+    wellCoordinates["YPF.Nq.ES-59"] = [-39.459888, -69.351453];
+
+    var circle_marker_5939b6973f791c40920ae8f413f237c6 = L.circleMarker(
+      [-39.00576, -69.41636],
+      {
+        bubblingMouseEvents: true,
+        color: "#00d5ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#00d5ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_55b1e0abd7018d18fc554dd2f024a2c4 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_27de7c8e12d26dd589f4795cca044b59 = $(
+      `<div id="html_27de7c8e12d26dd589f4795cca044b59" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-60<br>         <b>ID:</b> 9117<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Espera de Reparación<br>         <b>Oil Production:</b> 2,764.41 m³<br>         <b>Gas Production:</b> 26.23 m³<br>         <b>Water Production:</b> 51,641.14 m³<br>         </div>`
+    )[0];
+    popup_55b1e0abd7018d18fc554dd2f024a2c4.setContent(
+      html_27de7c8e12d26dd589f4795cca044b59
+    );
+
+    circle_marker_5939b6973f791c40920ae8f413f237c6.bindPopup(
+      popup_55b1e0abd7018d18fc554dd2f024a2c4
+    );
+
+    circle_marker_5939b6973f791c40920ae8f413f237c6.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-60 - 2,764.41 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-60"] =
+      circle_marker_5939b6973f791c40920ae8f413f237c6;
+    wellCoordinates["YPF.Nq.ES-60"] = [-39.00576, -69.41636];
+
+    var circle_marker_25897a2fb3fc08d3aac6700046e01aa4 = L.circleMarker(
+      [-39.460176, -69.344572],
+      {
+        bubblingMouseEvents: true,
+        color: "#0085ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0085ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_a8d726895673ea16b4cbfe564212e7f4 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_07db2b8528498e3e5937e2f35f132154 = $(
+      `<div id="html_07db2b8528498e3e5937e2f35f132154" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-6<br>         <b>ID:</b> 9116<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 1,734.04 m³<br>         <b>Gas Production:</b> 27.55 m³<br>         <b>Water Production:</b> 35,823.28 m³<br>         </div>`
+    )[0];
+    popup_a8d726895673ea16b4cbfe564212e7f4.setContent(
+      html_07db2b8528498e3e5937e2f35f132154
+    );
+
+    circle_marker_25897a2fb3fc08d3aac6700046e01aa4.bindPopup(
+      popup_a8d726895673ea16b4cbfe564212e7f4
+    );
+
+    circle_marker_25897a2fb3fc08d3aac6700046e01aa4.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-6 - 1,734.04 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-6"] = circle_marker_25897a2fb3fc08d3aac6700046e01aa4;
+    wellCoordinates["YPF.Nq.ES-6"] = [-39.460176, -69.344572];
+
+    var circle_marker_d7e3f109053ab416dd0115bea405e341 = L.circleMarker(
+      [-39.46893, -69.32793],
+      {
+        bubblingMouseEvents: true,
+        color: "#ffd800ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#ffd800ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 9.152750309670102,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_ec82a968d41ee13ffaa2cb2b97c90747 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_817566f99361b5388138df10229fa238 = $(
+      `<div id="html_817566f99361b5388138df10229fa238" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-7<br>         <b>ID:</b> 9126<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 8,094.40 m³<br>         <b>Gas Production:</b> 300.88 m³<br>         <b>Water Production:</b> 192,180.27 m³<br>         </div>`
+    )[0];
+    popup_ec82a968d41ee13ffaa2cb2b97c90747.setContent(
+      html_817566f99361b5388138df10229fa238
+    );
+
+    circle_marker_d7e3f109053ab416dd0115bea405e341.bindPopup(
+      popup_ec82a968d41ee13ffaa2cb2b97c90747
+    );
+
+    circle_marker_d7e3f109053ab416dd0115bea405e341.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-7 - 8,094.40 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-7"] = circle_marker_d7e3f109053ab416dd0115bea405e341;
+    wellCoordinates["YPF.Nq.ES-7"] = [-39.46893, -69.32793];
+
+    var circle_marker_ff2d0477758993048df770b65fa4c973 = L.circleMarker(
+      [-39.46571, -69.32723],
+      {
+        bubblingMouseEvents: true,
+        color: "#ffda00ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#ffda00ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 9.053443123263287,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_dab61bf6a0c52f6a2025430574509eae = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_aaa043245a2fad303be5a51eb5cfbe3a = $(
+      `<div id="html_aaa043245a2fad303be5a51eb5cfbe3a" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-73<br>         <b>ID:</b> 9130<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 8,006.58 m³<br>         <b>Gas Production:</b> 176.54 m³<br>         <b>Water Production:</b> 145,569.17 m³<br>         </div>`
+    )[0];
+    popup_dab61bf6a0c52f6a2025430574509eae.setContent(
+      html_aaa043245a2fad303be5a51eb5cfbe3a
+    );
+
+    circle_marker_ff2d0477758993048df770b65fa4c973.bindPopup(
+      popup_dab61bf6a0c52f6a2025430574509eae
+    );
+
+    circle_marker_ff2d0477758993048df770b65fa4c973.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-73 - 8,006.58 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-73"] =
+      circle_marker_ff2d0477758993048df770b65fa4c973;
+    wellCoordinates["YPF.Nq.ES-73"] = [-39.46571, -69.32723];
+
+    var circle_marker_7bdcfcef1ae46fdc0d09dd0416d7e762 = L.circleMarker(
+      [-39.45834, -69.354858],
+      {
+        bubblingMouseEvents: true,
+        color: "#00a8ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#00a8ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_fa3bc320188bf8b0b4c5c0dd6f065346 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_25e7742aafd1d8f67130907901ffd341 = $(
+      `<div id="html_25e7742aafd1d8f67130907901ffd341" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-74<br>         <b>ID:</b> 9131<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 2,183.66 m³<br>         <b>Gas Production:</b> 103.89 m³<br>         <b>Water Production:</b> 54,086.76 m³<br>         </div>`
+    )[0];
+    popup_fa3bc320188bf8b0b4c5c0dd6f065346.setContent(
+      html_25e7742aafd1d8f67130907901ffd341
+    );
+
+    circle_marker_7bdcfcef1ae46fdc0d09dd0416d7e762.bindPopup(
+      popup_fa3bc320188bf8b0b4c5c0dd6f065346
+    );
+
+    circle_marker_7bdcfcef1ae46fdc0d09dd0416d7e762.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-74 - 2,183.66 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-74"] =
+      circle_marker_7bdcfcef1ae46fdc0d09dd0416d7e762;
+    wellCoordinates["YPF.Nq.ES-74"] = [-39.45834, -69.354858];
+
+    var circle_marker_b0325442b816e4860233e84dfdea4078 = L.circleMarker(
+      [-39.477339, -69.381125],
+      {
+        bubblingMouseEvents: true,
+        color: "#000dffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#000dffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_f47bcfd3269c8f7875f2ba1eb2c50d3a = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_2bc0fe916cd1d69c8f21364f226e55bb = $(
+      `<div id="html_2bc0fe916cd1d69c8f21364f226e55bb" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-75<br>         <b>ID:</b> 9132<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 180.40 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 2,509.90 m³<br>         </div>`
+    )[0];
+    popup_f47bcfd3269c8f7875f2ba1eb2c50d3a.setContent(
+      html_2bc0fe916cd1d69c8f21364f226e55bb
+    );
+
+    circle_marker_b0325442b816e4860233e84dfdea4078.bindPopup(
+      popup_f47bcfd3269c8f7875f2ba1eb2c50d3a
+    );
+
+    circle_marker_b0325442b816e4860233e84dfdea4078.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-75 - 180.40 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-75"] =
+      circle_marker_b0325442b816e4860233e84dfdea4078;
+    wellCoordinates["YPF.Nq.ES-75"] = [-39.477339, -69.381125];
+
+    var circle_marker_6af7018d98bfe46bcdd297f0414650e9 = L.circleMarker(
+      [-39.47146, -69.380691],
+      {
+        bubblingMouseEvents: true,
+        color: "#006fffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#006fffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_79cf392c9da6b2f21f9e2205ba57e6d1 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_9096d7d550fc438d4444745b6a84dcb3 = $(
+      `<div id="html_9096d7d550fc438d4444745b6a84dcb3" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-79<br>         <b>ID:</b> 9134<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 1,448.23 m³<br>         <b>Gas Production:</b> 0.25 m³<br>         <b>Water Production:</b> 13,123.59 m³<br>         </div>`
+    )[0];
+    popup_79cf392c9da6b2f21f9e2205ba57e6d1.setContent(
+      html_9096d7d550fc438d4444745b6a84dcb3
+    );
+
+    circle_marker_6af7018d98bfe46bcdd297f0414650e9.bindPopup(
+      popup_79cf392c9da6b2f21f9e2205ba57e6d1
+    );
+
+    circle_marker_6af7018d98bfe46bcdd297f0414650e9.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-79 - 1,448.23 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-79"] =
+      circle_marker_6af7018d98bfe46bcdd297f0414650e9;
+    wellCoordinates["YPF.Nq.ES-79"] = [-39.47146, -69.380691];
+
+    var circle_marker_f6e3396848ae4310c87a2b88bea5f7aa = L.circleMarker(
+      [-39.46742, -69.32381],
+      {
+        bubblingMouseEvents: true,
+        color: "#d3ff2cff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#d3ff2cff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 6.845457457590657,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_1a187f8b4eb34b7420346dbd493035b3 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_d17f9ef5b849a9c4db25c7e10d9424ae = $(
+      `<div id="html_d17f9ef5b849a9c4db25c7e10d9424ae" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-62<br>         <b>ID:</b> 9119<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 6,053.91 m³<br>         <b>Gas Production:</b> 9.18 m³<br>         <b>Water Production:</b> 88,519.16 m³<br>         </div>`
+    )[0];
+    popup_1a187f8b4eb34b7420346dbd493035b3.setContent(
+      html_d17f9ef5b849a9c4db25c7e10d9424ae
+    );
+
+    circle_marker_f6e3396848ae4310c87a2b88bea5f7aa.bindPopup(
+      popup_1a187f8b4eb34b7420346dbd493035b3
+    );
+
+    circle_marker_f6e3396848ae4310c87a2b88bea5f7aa.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-62 - 6,053.91 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-62"] =
+      circle_marker_f6e3396848ae4310c87a2b88bea5f7aa;
+    wellCoordinates["YPF.Nq.ES-62"] = [-39.46041, -69.33743];
+
+    var circle_marker_ed5a2137260521525fc29537774627ec = L.circleMarker(
+      [-39.46041, -69.33743],
+      {
+        bubblingMouseEvents: true,
+        color: "#0007ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0007ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_e0135c5970fecaddb0ce351f208fa8df = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_f886ab2110f9c1424ac705036fa9bcba = $(
+      `<div id="html_f886ab2110f9c1424ac705036fa9bcba" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-70<br>         <b>ID:</b> 9127<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 101.83 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 0.00 m³<br>         </div>`
+    )[0];
+    popup_e0135c5970fecaddb0ce351f208fa8df.setContent(
+      html_f886ab2110f9c1424ac705036fa9bcba
+    );
+
+    circle_marker_ed5a2137260521525fc29537774627ec.bindPopup(
+      popup_e0135c5970fecaddb0ce351f208fa8df
+    );
+
+    circle_marker_ed5a2137260521525fc29537774627ec.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-70 - 101.83 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-70"] =
+      circle_marker_ed5a2137260521525fc29537774627ec;
+    wellCoordinates["YPF.Nq.ES-70"] = [-39.46041, -69.33743];
+
+    var circle_marker_b4d6d9ec14822841962f534ef40dfe59 = L.circleMarker(
+      [-39.464767, -69.38755],
+      {
+        bubblingMouseEvents: true,
+        color: "#00fdffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#00fdffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_a1f5b3559441982b569299eb5b7dd3a8 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_8eb1fbe8d1a6218a323710c5a65813de = $(
+      `<div id="html_8eb1fbe8d1a6218a323710c5a65813de" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-81<br>         <b>ID:</b> 9136<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 3,283.07 m³<br>         <b>Gas Production:</b> 313.77 m³<br>         <b>Water Production:</b> 156,418.74 m³<br>         </div>`
+    )[0];
+    popup_a1f5b3559441982b569299eb5b7dd3a8.setContent(
+      html_8eb1fbe8d1a6218a323710c5a65813de
+    );
+
+    circle_marker_b4d6d9ec14822841962f534ef40dfe59.bindPopup(
+      popup_a1f5b3559441982b569299eb5b7dd3a8
+    );
+
+    circle_marker_b4d6d9ec14822841962f534ef40dfe59.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-81 - 3,283.07 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-81"] =
+      circle_marker_b4d6d9ec14822841962f534ef40dfe59;
+    wellCoordinates["YPF.Nq.ES-81"] = [-39.464767, -69.38755];
+
+    var circle_marker_9588e07374364f3d0a5c1f2535f8fe22 = L.circleMarker(
+      [-39.475567, -69.384592],
+      {
+        bubblingMouseEvents: true,
+        color: "#6eff91ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#6eff91ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5.371125793282305,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_413dc5d55b9104a714490102125c0d9f = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_28c7099286d16a505393b22c59c5660d = $(
+      `<div id="html_28c7099286d16a505393b22c59c5660d" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> YPF.Nq.ES-99<br>         <b>ID:</b> 9154<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 4,750.05 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 25,154.85 m³<br>         </div>`
+    )[0];
+    popup_413dc5d55b9104a714490102125c0d9f.setContent(
+      html_28c7099286d16a505393b22c59c5660d
+    );
+
+    circle_marker_9588e07374364f3d0a5c1f2535f8fe22.bindPopup(
+      popup_413dc5d55b9104a714490102125c0d9f
+    );
+
+    circle_marker_9588e07374364f3d0a5c1f2535f8fe22.bindTooltip(
+      `<div>
+                     YPF.Nq.ES-99 - 4,750.05 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["YPF.Nq.ES-99"] =
+      circle_marker_9588e07374364f3d0a5c1f2535f8fe22;
+    wellCoordinates["YPF.Nq.ES-99"] = [-39.475567, -69.384592];
+
+    var circle_marker_13d3db88ce73a065be030ca97b1306c0 = L.circleMarker(
+      [-39.465599, -69.358827],
+      {
+        bubblingMouseEvents: true,
+        color: "#0003ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0003ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_6ced2d5f5a975ea1975231167384e96d = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_de263f1ed6486b30ba17e184ea2cc96a = $(
+      `<div id="html_de263f1ed6486b30ba17e184ea2cc96a" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> BS.Nq.ES.WW-13<br>         <b>ID:</b> 132650<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Otras Situación Inactivo<br>         <b>Oil Production:</b> 41.70 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 3,240.00 m³<br>         </div>`
+    )[0];
+    popup_6ced2d5f5a975ea1975231167384e96d.setContent(
+      html_de263f1ed6486b30ba17e184ea2cc96a
+    );
+
+    circle_marker_13d3db88ce73a065be030ca97b1306c0.bindPopup(
+      popup_6ced2d5f5a975ea1975231167384e96d
+    );
+
+    circle_marker_13d3db88ce73a065be030ca97b1306c0.bindTooltip(
+      `<div>
+                     BS.Nq.ES.WW-13 - 41.70 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["BS.Nq.ES.WW-13"] =
+      circle_marker_13d3db88ce73a065be030ca97b1306c0;
+    wellCoordinates["BS.Nq.ES.WW-13"] = [-39.465599, -69.358827];
+
+    var circle_marker_7d2be11fea036a7a4bdb6a2fbb82572e = L.circleMarker(
+      [-39.52019, -69.37553],
+      {
+        bubblingMouseEvents: true,
+        color: "#45ffbaff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#45ffbaff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_bff450249313b1418dc55e78c5073997 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_9bdac25f26e2615b962faa43b7125e09 = $(
+      `<div id="html_9bdac25f26e2615b962faa43b7125e09" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> SJ.Nq.LdP.x-1<br>         <b>ID:</b> 10068<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Espera de Reparación<br>         <b>Oil Production:</b> 4,216.13 m³<br>         <b>Gas Production:</b> 16.32 m³<br>         <b>Water Production:</b> 87,011.07 m³<br>         </div>`
+    )[0];
+    popup_bff450249313b1418dc55e78c5073997.setContent(
+      html_9bdac25f26e2615b962faa43b7125e09
+    );
+
+    circle_marker_7d2be11fea036a7a4bdb6a2fbb82572e.bindPopup(
+      popup_bff450249313b1418dc55e78c5073997
+    );
+
+    circle_marker_7d2be11fea036a7a4bdb6a2fbb82572e.bindTooltip(
+      `<div>
+                     SJ.Nq.LdP.x-1 - 4,216.13 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["SJ.Nq.LdP.x-1"] =
+      circle_marker_7d2be11fea036a7a4bdb6a2fbb82572e;
+    wellCoordinates["SJ.Nq.LdP.x-1"] = [-39.52019, -69.37553];
+
+    var circle_marker_35f62d70ff36178ffea8b778dbebb8ca = L.circleMarker(
+      [-39.47111, -69.37777],
+      {
+        bubblingMouseEvents: true,
+        color: "#b6ff49ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#b6ff49ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 6.429140877131697,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_054b98198b1b104f2a16720d1b937333 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_66fac5e09f9fcf20d2c0ee5eefdc306e = $(
+      `<div id="html_66fac5e09f9fcf20d2c0ee5eefdc306e" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> CIC.Nq.ES-152<br>         <b>ID:</b> 146749<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 5,685.73 m³<br>         <b>Gas Production:</b> 212.71 m³<br>         <b>Water Production:</b> 109,639.09 m³<br>         </div>`
+    )[0];
+    popup_054b98198b1b104f2a16720d1b937333.setContent(
+      html_66fac5e09f9fcf20d2c0ee5eefdc306e
+    );
+
+    circle_marker_35f62d70ff36178ffea8b778dbebb8ca.bindPopup(
+      popup_054b98198b1b104f2a16720d1b937333
+    );
+
+    circle_marker_35f62d70ff36178ffea8b778dbebb8ca.bindTooltip(
+      `<div>
+                     CIC.Nq.ES-152 - 5,685.73 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["CIC.Nq.ES-152"] =
+      circle_marker_35f62d70ff36178ffea8b778dbebb8ca;
+    wellCoordinates["CIC.Nq.ES-152"] = [-39.47111, -69.37777];
+
+    var circle_marker_4857f723295035356cb2b3b24dbca0c8 = L.circleMarker(
+      [-39.47225, -69.35668],
+      {
+        bubblingMouseEvents: true,
+        color: "#07fff8ff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#07fff8ff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_b6ed2a5c7b27cce00792162d179017f5 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_b1806eefbd7dee6a1b7a47ebae135807 = $(
+      `<div id="html_b1806eefbd7dee6a1b7a47ebae135807" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> CIC.Nq.ES-148<br>         <b>ID:</b> 146750<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 3,414.35 m³<br>         <b>Gas Production:</b> 31.97 m³<br>         <b>Water Production:</b> 31,184.83 m³<br>         </div>`
+    )[0];
+    popup_b6ed2a5c7b27cce00792162d179017f5.setContent(
+      html_b1806eefbd7dee6a1b7a47ebae135807
+    );
+
+    circle_marker_4857f723295035356cb2b3b24dbca0c8.bindPopup(
+      popup_b6ed2a5c7b27cce00792162d179017f5
+    );
+
+    circle_marker_4857f723295035356cb2b3b24dbca0c8.bindTooltip(
+      `<div>
+                     CIC.Nq.ES-148 - 3,414.35 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["CIC.Nq.ES-148"] =
+      circle_marker_4857f723295035356cb2b3b24dbca0c8;
+    wellCoordinates["CIC.Nq.ES-148"] = [-39.47225, -69.35668];
+
+    var circle_marker_e5d2667014c4f426a6231a4d36316bea = L.circleMarker(
+      [-39.467, -69.35752],
+      {
+        bubblingMouseEvents: true,
+        color: "#002cffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#002cffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_83063dac68ebea81285519ac62fd94bd = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_74c11f5dadedc0a02e2ebb4de08b3c5a = $(
+      `<div id="html_74c11f5dadedc0a02e2ebb4de08b3c5a" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> CIC.Nq.ES-149<br>         <b>ID:</b> 146928<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Extracción Efectiva<br>         <b>Oil Production:</b> 570.86 m³<br>         <b>Gas Production:</b> 17.79 m³<br>         <b>Water Production:</b> 5,957.48 m³<br>         </div>`
+    )[0];
+    popup_83063dac68ebea81285519ac62fd94bd.setContent(
+      html_74c11f5dadedc0a02e2ebb4de08b3c5a
+    );
+
+    circle_marker_e5d2667014c4f426a6231a4d36316bea.bindPopup(
+      popup_83063dac68ebea81285519ac62fd94bd
+    );
+
+    circle_marker_e5d2667014c4f426a6231a4d36316bea.bindTooltip(
+      `<div>
+                     CIC.Nq.ES-149 - 570.86 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["CIC.Nq.ES-149"] =
+      circle_marker_e5d2667014c4f426a6231a4d36316bea;
+    wellCoordinates["CIC.Nq.ES-149"] = [-39.467, -69.35752];
+
+    var circle_marker_d6642c8edd5ca390a061f45fd583e18a = L.circleMarker(
+      [-39.4614, -69.34443],
+      {
+        bubblingMouseEvents: true,
+        color: "#0028ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0028ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_bc19d140ba9e051333e8c378f6c20a39 = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_c6c66d7ed53dc6a367dd41344c46c05a = $(
+      `<div id="html_c6c66d7ed53dc6a367dd41344c46c05a" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> CIC.Nq.ES-151<br>         <b>ID:</b> 146952<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> En Estudio<br>         <b>Oil Production:</b> 526.19 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 2,805.58 m³<br>         </div>`
+    )[0];
+    popup_bc19d140ba9e051333e8c378f6c20a39.setContent(
+      html_c6c66d7ed53dc6a367dd41344c46c05a
+    );
+
+    circle_marker_d6642c8edd5ca390a061f45fd583e18a.bindPopup(
+      popup_bc19d140ba9e051333e8c378f6c20a39
+    );
+
+    circle_marker_d6642c8edd5ca390a061f45fd583e18a.bindTooltip(
+      `<div>
+                     CIC.Nq.ES-151 - 526.19 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["CIC.Nq.ES-151"] =
+      circle_marker_d6642c8edd5ca390a061f45fd583e18a;
+    wellCoordinates["CIC.Nq.ES-151"] = [-39.4614, -69.34443];
+
+    var circle_marker_33ef835d5c56f94a389b9977cb2c9642 = L.circleMarker(
+      [-39.46614, -69.33282],
+      {
+        bubblingMouseEvents: true,
+        color: "#0016ffff",
+        dashArray: null,
+        dashOffset: null,
+        fill: true,
+        fillColor: "#0016ffff",
+        fillOpacity: 0.7,
+        fillRule: "evenodd",
+        lineCap: "round",
+        lineJoin: "round",
+        opacity: 1.0,
+        radius: 5,
+        stroke: true,
+        weight: 3,
+      }
+    ).addTo(marker_cluster_302704c54a1b4ee850f8a4987bc9708a);
+
+    var popup_02292ac90e22d387a82cf098620181ef = L.popup({
+      maxWidth: 300,
+    });
+
+    var html_ed2c220ac6bfa748646d63db30f3e6b1 = $(
+      `<div id="html_ed2c220ac6bfa748646d63db30f3e6b1" style="width: 100.0%; height: 100.0%;">         <b>Well:</b> CIC.Nq.ES-150<br>         <b>ID:</b> 146242<br>         <b>Field:</b> EL SAUCE<br>         <b>Basin:</b> NEUQUINA<br>         <b>Province:</b> Neuquén<br>         <b>Status:</b> Parado Transitoriamente<br>         <b>Oil Production:</b> 289.77 m³<br>         <b>Gas Production:</b> 0.00 m³<br>         <b>Water Production:</b> 35,615.52 m³<br>         </div>`
+    )[0];
+    popup_02292ac90e22d387a82cf098620181ef.setContent(
+      html_ed2c220ac6bfa748646d63db30f3e6b1
+    );
+
+    circle_marker_33ef835d5c56f94a389b9977cb2c9642.bindPopup(
+      popup_02292ac90e22d387a82cf098620181ef
+    );
+
+    circle_marker_33ef835d5c56f94a389b9977cb2c9642.bindTooltip(
+      `<div>
+                     CIC.Nq.ES-150 - 289.77 m³
+                 </div>`,
+      {
+        sticky: true,
+      }
+    );
+
+    wellMarkers["CIC.Nq.ES-150"] =
+      circle_marker_33ef835d5c56f94a389b9977cb2c9642;
+    wellCoordinates["CIC.Nq.ES-150"] = [-39.46614, -69.33282];
+
+    marker_cluster_302704c54a1b4ee850f8a4987bc9708a.addTo(
+      map_00f78431f7922a453fb8a5487c940708
+    );
+
+    var color_map_2516cd33cc829d7fac7aa1e66ebfe7a2 = {};
+
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.color = d3.scale
+      .threshold()
+      .domain([
+        0.0, 26.5842203621365, 53.168440724273, 79.75266108640949,
+        106.336881448546, 132.9211018106825, 159.50532217281898,
+        186.08954253495548, 212.673762897092, 239.2579832592285,
+        265.842203621365, 292.4264239835015, 319.01064434563796,
+        345.59486470777443, 372.17908506991097, 398.76330543204745,
+        425.347525794184, 451.93174615632046, 478.515966518457,
+        505.10018688059347, 531.68440724273, 558.2686276048665,
+        584.852847967003, 611.4370683291395, 638.0212886912759,
+        664.6055090534124, 691.1897294155489, 717.7739497776854,
+        744.3581701398219, 770.9423905019585, 797.5266108640949,
+        824.1108312262314, 850.695051588368, 877.2792719505045,
+        903.8634923126409, 930.4477126747774, 957.031933036914,
+        983.6161533990505, 1010.2003737611869, 1036.7845941233236,
+        1063.36881448546, 1089.9530348475964, 1116.537255209733,
+        1143.1214755718693, 1169.705695934006, 1196.2899162961423,
+        1222.874136658279, 1249.4583570204154, 1276.0425773825518,
+        1302.6267977446885, 1329.211018106825, 1355.7952384689613,
+        1382.3794588310977, 1408.9636791932344, 1435.5478995553708,
+        1462.1321199175075, 1488.7163402796439, 1515.3005606417805,
+        1541.884781003917, 1568.4690013660534, 1595.0532217281898,
+        1621.6374420903264, 1648.2216624524629, 1674.8058828145995,
+        1701.390103176736, 1727.9743235388723, 1754.558543901009,
+        1781.1427642631452, 1807.7269846252818, 1834.3112049874183,
+        1860.895425349555, 1887.4796457116913, 1914.063866073828,
+        1940.6480864359644, 1967.232306798101, 1993.8165271602372,
+        2020.4007475223739, 2046.9849678845103, 2073.569188246647,
+        2100.153408608783, 2126.73762897092, 2153.321849333056,
+        2179.906069695193, 2206.4902900573293, 2233.074510419466,
+        2259.658730781602, 2286.2429511437385, 2312.8271715058754,
+        2339.411391868012, 2365.9956122301483, 2392.5798325922847,
+        2419.1640529544215, 2445.748273316558, 2472.3324936786944,
+        2498.916714040831, 2525.5009344029672, 2552.0851547651037,
+        2578.66937512724, 2605.253595489377, 2631.8378158515134,
+        2658.42203621365, 2685.006256575786, 2711.5904769379226,
+        2738.1746973000595, 2764.7589176621955, 2791.3431380243323,
+        2817.9273583864688, 2844.5115787486056, 2871.0957991107416,
+        2897.6800194728785, 2924.264239835015, 2950.8484601971513,
+        2977.4326805592877, 3004.016900921424, 3030.601121283561,
+        3057.185341645697, 3083.769562007834, 3110.3537823699703,
+        3136.9380027321067, 3163.522223094243, 3190.1064434563796,
+        3216.6906638185164, 3243.274884180653, 3269.8591045427893,
+        3296.4433249049257, 3323.0275452670626, 3349.611765629199,
+        3376.195985991335, 3402.780206353472, 3429.3644267156083,
+        3455.9486470777447, 3482.532867439881, 3509.117087802018,
+        3535.7013081641544, 3562.2855285262904, 3588.8697488884272,
+        3615.4539692505637, 3642.0381896127005, 3668.6224099748365,
+        3695.2066303369734, 3721.79085069911, 3748.375071061246,
+        3774.9592914233826, 3801.543511785519, 3828.127732147656,
+        3854.711952509792, 3881.296172871929, 3907.880393234065,
+        3934.464613596202, 3961.048833958338, 3987.6330543204745,
+        4014.2172746826113, 4040.8014950447478, 4067.385715406884,
+        4093.9699357690206, 4120.5541561311575, 4147.138376493294,
+        4173.72259685543, 4200.306817217566, 4226.891037579703,
+        4253.47525794184, 4280.059478303977, 4306.643698666112,
+        4333.227919028249, 4359.812139390386, 4386.396359752522,
+        4412.980580114659, 4439.564800476795, 4466.149020838932,
+        4492.733241201068, 4519.317461563204, 4545.901681925341,
+        4572.485902287477, 4599.070122649614, 4625.654343011751,
+        4652.238563373888, 4678.822783736024, 4705.40700409816,
+        4731.9912244602965, 4758.575444822433, 4785.159665184569,
+        4811.743885546706, 4838.328105908843, 4864.912326270979,
+        4891.496546633116, 4918.080766995252, 4944.664987357389,
+        4971.249207719525, 4997.833428081662, 5024.4176484437985,
+        5051.0018688059345, 5077.586089168071, 5104.170309530207,
+        5130.754529892344, 5157.33875025448, 5183.922970616617,
+        5210.507190978754, 5237.09141134089, 5263.675631703027,
+        5290.259852065164, 5316.8440724273, 5343.428292789436,
+        5370.012513151572, 5396.596733513709, 5423.180953875845,
+        5449.765174237982, 5476.349394600119, 5502.933614962256,
+        5529.517835324391, 5556.102055686528, 5582.686276048665,
+        5609.270496410801, 5635.8547167729375, 5662.438937135074,
+        5689.023157497211, 5715.607377859346, 5742.191598221483,
+        5768.77581858362, 5795.360038945757, 5821.944259307893,
+        5848.52847967003, 5875.112700032167, 5901.696920394303,
+        5928.281140756439, 5954.8653611185755, 5981.449581480712,
+        6008.033801842848, 6034.618022204985, 6061.202242567122,
+        6087.786462929258, 6114.370683291394, 6140.954903653531,
+        6167.539124015668, 6194.123344377804, 6220.707564739941,
+        6247.2917851020775, 6273.876005464213, 6300.46022582635,
+        6327.044446188486, 6353.628666550623, 6380.212886912759,
+        6406.797107274896, 6433.381327637033, 6459.965547999169,
+        6486.549768361306, 6513.133988723442, 6539.718209085579,
+        6566.3024294477145, 6592.886649809851, 6619.470870171988,
+        6646.055090534125, 6672.639310896261, 6699.223531258398,
+        6725.807751620534, 6752.39197198267, 6778.976192344807,
+        6805.560412706944, 6832.144633069081, 6858.7288534312165,
+        6885.313073793353, 6911.897294155489, 6938.481514517625,
+        6965.065734879762, 6991.649955241899, 7018.234175604036,
+        7044.818395966172, 7071.402616328309, 7097.986836690446,
+        7124.571057052581, 7151.155277414718, 7177.7394977768545,
+        7204.323718138991, 7230.907938501127, 7257.492158863264,
+        7284.076379225401, 7310.660599587536, 7337.244819949673,
+        7363.82904031181, 7390.413260673947, 7416.997481036083,
+        7443.58170139822, 7470.1659217603565, 7496.750142122492,
+        7523.334362484628, 7549.918582846765, 7576.502803208902,
+        7603.087023571038, 7629.671243933175, 7656.255464295312,
+        7682.839684657449, 7709.423905019584, 7736.008125381721,
+        7762.592345743858, 7789.1765661059935, 7815.76078646813,
+        7842.345006830267, 7868.929227192404, 7895.51344755454,
+        7922.097667916676, 7948.681888278813, 7975.266108640949,
+        8001.850329003086, 8028.434549365223, 8055.0187697273595,
+        8081.6029900894955, 8108.1872104516315, 8134.771430813768,
+        8161.355651175904, 8187.939871538041, 8214.524091900177,
+        8241.108312262315, 8267.69253262445, 8294.276752986589,
+        8320.860973348723, 8347.44519371086, 8374.029414072997,
+        8400.613634435133, 8427.19785479727, 8453.782075159406,
+        8480.366295521544, 8506.95051588368, 8533.534736245816,
+        8560.118956607954, 8586.70317697009, 8613.287397332224,
+        8639.871617694362, 8666.455838056498, 8693.040058418634,
+        8719.624278780771, 8746.208499142907, 8772.792719505043,
+        8799.376939867181, 8825.961160229317, 8852.545380591455,
+        8879.12960095359, 8905.713821315727, 8932.298041677865, 8958.88226204,
+        8985.466482402137, 9012.050702764273, 9038.634923126408,
+        9065.219143488544, 9091.803363850682, 9118.387584212818,
+        9144.971804574954, 9171.556024937092, 9198.140245299228,
+        9224.724465661366, 9251.308686023502, 9277.892906385638,
+        9304.477126747775, 9331.061347109911, 9357.645567472047,
+        9384.229787834185, 9410.81400819632, 9437.398228558455,
+        9463.982448920593, 9490.566669282729, 9517.150889644867,
+        9543.735110007003, 9570.319330369139, 9596.903550731276,
+        9623.487771093412, 9650.071991455548, 9676.656211817686,
+        9703.240432179822, 9729.824652541958, 9756.408872904096,
+        9782.993093266232, 9809.577313628366, 9836.161533990504,
+        9862.74575435264, 9889.329974714778, 9915.914195076914,
+        9942.49841543905, 9969.082635801187, 9995.666856163323,
+        10022.25107652546, 10048.835296887597, 10075.419517249733,
+        10102.003737611869, 10128.587957974007, 10155.172178336143,
+        10181.75639869828, 10208.340619060415, 10234.92483942255,
+        10261.509059784688, 10288.093280146824, 10314.67750050896,
+        10341.261720871098, 10367.845941233234, 10394.43016159537,
+        10421.014381957508, 10447.598602319644, 10474.18282268178,
+        10500.767043043918, 10527.351263406053, 10553.935483768191,
+        10580.519704130327, 10607.103924492463, 10633.6881448546,
+        10660.272365216735, 10686.856585578871, 10713.440805941009,
+        10740.025026303145, 10766.60924666528, 10793.193467027419,
+        10819.777687389555, 10846.36190775169, 10872.946128113828,
+        10899.530348475964, 10926.114568838102, 10952.698789200238,
+        10979.283009562374, 11005.867229924512, 11032.451450286646,
+        11059.035670648782, 11085.61989101092, 11112.204111373056,
+        11138.788331735192, 11165.37255209733, 11191.956772459465,
+        11218.540992821601, 11245.12521318374, 11271.709433545875,
+        11298.293653908013, 11324.877874270149, 11351.462094632285,
+        11378.046314994423, 11404.630535356559, 11431.214755718693,
+        11457.79897608083, 11484.383196442966, 11510.967416805102,
+        11537.55163716724, 11564.135857529376, 11590.720077891514,
+        11617.30429825365, 11643.888518615786, 11670.472738977924,
+        11697.05695934006, 11723.641179702196, 11750.225400064333,
+        11776.80962042647, 11803.393840788605, 11829.978061150741,
+        11856.562281512877, 11883.146501875013, 11909.730722237151,
+        11936.314942599287, 11962.899162961425, 11989.48338332356,
+        12016.067603685697, 12042.651824047834, 12069.23604440997,
+        12095.820264772106, 12122.404485134244, 12148.98870549638,
+        12175.572925858516, 12202.157146220654, 12228.741366582788,
+        12255.325586944924, 12281.909807307062, 12308.494027669198,
+        12335.078248031336, 12361.662468393471, 12388.246688755607,
+        12414.830909117745, 12441.415129479881, 12467.999349842017,
+        12494.583570204155, 12521.167790566291, 12547.752010928427,
+        12574.336231290565, 12600.9204516527, 12627.504672014837,
+        12654.088892376973, 12680.673112739109, 12707.257333101246,
+        12733.841553463382, 12760.425773825518, 12787.009994187656,
+        12813.594214549792, 12840.178434911928, 12866.762655274066,
+        12893.346875636202, 12919.931095998338, 12946.515316360475,
+        12973.099536722611, 12999.68375708475, 13026.267977446883,
+        13052.85219780902, 13079.436418171157, 13106.020638533293,
+        13132.604858895429, 13159.189079257567, 13185.773299619703,
+        13212.357519981839, 13238.941740343977, 13265.525960706113,
+      ])
+      .range([
+        "#0000ffff",
+        "#0002ffff",
+        "#0004ffff",
+        "#0006ffff",
+        "#0008ffff",
+        "#000affff",
+        "#000cffff",
+        "#000effff",
+        "#0010ffff",
+        "#0012ffff",
+        "#0014ffff",
+        "#0016ffff",
+        "#0018ffff",
+        "#001affff",
+        "#001cffff",
+        "#001effff",
+        "#0020ffff",
+        "#0022ffff",
+        "#0024ffff",
+        "#0026ffff",
+        "#0029ffff",
+        "#002bffff",
+        "#002dffff",
+        "#002fffff",
+        "#0031ffff",
+        "#0033ffff",
+        "#0035ffff",
+        "#0037ffff",
+        "#0039ffff",
+        "#003bffff",
+        "#003dffff",
+        "#003fffff",
+        "#0041ffff",
+        "#0043ffff",
+        "#0045ffff",
+        "#0047ffff",
+        "#0049ffff",
+        "#004bffff",
+        "#004dffff",
+        "#0050ffff",
+        "#0052ffff",
+        "#0054ffff",
+        "#0056ffff",
+        "#0058ffff",
+        "#005affff",
+        "#005cffff",
+        "#005effff",
+        "#0060ffff",
+        "#0062ffff",
+        "#0064ffff",
+        "#0066ffff",
+        "#0068ffff",
+        "#006affff",
+        "#006cffff",
+        "#006effff",
+        "#0070ffff",
+        "#0072ffff",
+        "#0074ffff",
+        "#0077ffff",
+        "#0079ffff",
+        "#007bffff",
+        "#007dffff",
+        "#007fffff",
+        "#0081ffff",
+        "#0083ffff",
+        "#0085ffff",
+        "#0087ffff",
+        "#0089ffff",
+        "#008bffff",
+        "#008dffff",
+        "#008fffff",
+        "#0091ffff",
+        "#0093ffff",
+        "#0095ffff",
+        "#0097ffff",
+        "#0099ffff",
+        "#009bffff",
+        "#009effff",
+        "#00a0ffff",
+        "#00a2ffff",
+        "#00a4ffff",
+        "#00a6ffff",
+        "#00a8ffff",
+        "#00aaffff",
+        "#00acffff",
+        "#00aeffff",
+        "#00b0ffff",
+        "#00b2ffff",
+        "#00b4ffff",
+        "#00b6ffff",
+        "#00b8ffff",
+        "#00baffff",
+        "#00bcffff",
+        "#00beffff",
+        "#00c0ffff",
+        "#00c2ffff",
+        "#00c5ffff",
+        "#00c7ffff",
+        "#00c9ffff",
+        "#00cbffff",
+        "#00cdffff",
+        "#00cfffff",
+        "#00d1ffff",
+        "#00d3ffff",
+        "#00d5ffff",
+        "#00d7ffff",
+        "#00d9ffff",
+        "#00dbffff",
+        "#00ddffff",
+        "#00dfffff",
+        "#00e1ffff",
+        "#00e3ffff",
+        "#00e5ffff",
+        "#00e7ffff",
+        "#00e9ffff",
+        "#00ebffff",
+        "#00eeffff",
+        "#00f0ffff",
+        "#00f2ffff",
+        "#00f4ffff",
+        "#00f6ffff",
+        "#00f8ffff",
+        "#00faffff",
+        "#00fcffff",
+        "#00feffff",
+        "#00ffffff",
+        "#02fffdff",
+        "#04fffbff",
+        "#06fff9ff",
+        "#08fff7ff",
+        "#0afff5ff",
+        "#0cfff3ff",
+        "#0efff1ff",
+        "#10ffefff",
+        "#12ffedff",
+        "#15ffeaff",
+        "#17ffe8ff",
+        "#19ffe6ff",
+        "#1bffe4ff",
+        "#1dffe2ff",
+        "#1fffe0ff",
+        "#21ffdeff",
+        "#23ffdcff",
+        "#25ffdaff",
+        "#27ffd8ff",
+        "#29ffd6ff",
+        "#2bffd4ff",
+        "#2dffd2ff",
+        "#2fffd0ff",
+        "#31ffceff",
+        "#33ffccff",
+        "#35ffcaff",
+        "#37ffc8ff",
+        "#39ffc6ff",
+        "#3cffc3ff",
+        "#3effc1ff",
+        "#40ffbfff",
+        "#42ffbdff",
+        "#44ffbbff",
+        "#46ffb9ff",
+        "#48ffb7ff",
+        "#4affb5ff",
+        "#4cffb3ff",
+        "#4effb1ff",
+        "#50ffafff",
+        "#52ffadff",
+        "#54ffabff",
+        "#56ffa9ff",
+        "#58ffa7ff",
+        "#5affa5ff",
+        "#5cffa3ff",
+        "#5effa1ff",
+        "#60ff9fff",
+        "#63ff9cff",
+        "#65ff9aff",
+        "#67ff98ff",
+        "#69ff96ff",
+        "#6bff94ff",
+        "#6dff92ff",
+        "#6fff90ff",
+        "#71ff8eff",
+        "#73ff8cff",
+        "#75ff8aff",
+        "#77ff88ff",
+        "#79ff86ff",
+        "#7bff84ff",
+        "#7dff82ff",
+        "#7fff80ff",
+        "#81ff7eff",
+        "#83ff7cff",
+        "#85ff7aff",
+        "#87ff78ff",
+        "#8aff75ff",
+        "#8cff73ff",
+        "#8eff71ff",
+        "#90ff6fff",
+        "#92ff6dff",
+        "#94ff6bff",
+        "#96ff69ff",
+        "#98ff67ff",
+        "#9aff65ff",
+        "#9cff63ff",
+        "#9eff61ff",
+        "#a0ff5fff",
+        "#a2ff5dff",
+        "#a4ff5bff",
+        "#a6ff59ff",
+        "#a8ff57ff",
+        "#aaff55ff",
+        "#acff53ff",
+        "#aeff51ff",
+        "#b0ff4fff",
+        "#b3ff4cff",
+        "#b5ff4aff",
+        "#b7ff48ff",
+        "#b9ff46ff",
+        "#bbff44ff",
+        "#bdff42ff",
+        "#bfff40ff",
+        "#c1ff3eff",
+        "#c3ff3cff",
+        "#c5ff3aff",
+        "#c7ff38ff",
+        "#c9ff36ff",
+        "#cbff34ff",
+        "#cdff32ff",
+        "#cfff30ff",
+        "#d1ff2eff",
+        "#d3ff2cff",
+        "#d5ff2aff",
+        "#d7ff28ff",
+        "#daff25ff",
+        "#dcff23ff",
+        "#deff21ff",
+        "#e0ff1fff",
+        "#e2ff1dff",
+        "#e4ff1bff",
+        "#e6ff19ff",
+        "#e8ff17ff",
+        "#eaff15ff",
+        "#ecff13ff",
+        "#eeff11ff",
+        "#f0ff0fff",
+        "#f2ff0dff",
+        "#f4ff0bff",
+        "#f6ff09ff",
+        "#f8ff07ff",
+        "#faff05ff",
+        "#fcff03ff",
+        "#feff01ff",
+        "#ffff00ff",
+        "#fffe00ff",
+        "#fffe00ff",
+        "#fffd00ff",
+        "#fffc00ff",
+        "#fffc00ff",
+        "#fffb00ff",
+        "#fffa00ff",
+        "#fff900ff",
+        "#fff900ff",
+        "#fff800ff",
+        "#fff700ff",
+        "#fff600ff",
+        "#fff600ff",
+        "#fff500ff",
+        "#fff400ff",
+        "#fff400ff",
+        "#fff300ff",
+        "#fff200ff",
+        "#fff100ff",
+        "#fff100ff",
+        "#fff000ff",
+        "#ffef00ff",
+        "#ffee00ff",
+        "#ffee00ff",
+        "#ffed00ff",
+        "#ffec00ff",
+        "#ffec00ff",
+        "#ffeb00ff",
+        "#ffea00ff",
+        "#ffe900ff",
+        "#ffe900ff",
+        "#ffe800ff",
+        "#ffe700ff",
+        "#ffe700ff",
+        "#ffe600ff",
+        "#ffe500ff",
+        "#ffe400ff",
+        "#ffe400ff",
+        "#ffe300ff",
+        "#ffe200ff",
+        "#ffe100ff",
+        "#ffe100ff",
+        "#ffe000ff",
+        "#ffdf00ff",
+        "#ffdf00ff",
+        "#ffde00ff",
+        "#ffdd00ff",
+        "#ffdc00ff",
+        "#ffdc00ff",
+        "#ffdb00ff",
+        "#ffda00ff",
+        "#ffd900ff",
+        "#ffd900ff",
+        "#ffd800ff",
+        "#ffd700ff",
+        "#ffd700ff",
+        "#ffd600ff",
+        "#ffd500ff",
+        "#ffd400ff",
+        "#ffd400ff",
+        "#ffd300ff",
+        "#ffd200ff",
+        "#ffd200ff",
+        "#ffd100ff",
+        "#ffd000ff",
+        "#ffcf00ff",
+        "#ffcf00ff",
+        "#ffce00ff",
+        "#ffcd00ff",
+        "#ffcc00ff",
+        "#ffcc00ff",
+        "#ffcb00ff",
+        "#ffca00ff",
+        "#ffca00ff",
+        "#ffc900ff",
+        "#ffc800ff",
+        "#ffc700ff",
+        "#ffc700ff",
+        "#ffc600ff",
+        "#ffc500ff",
+        "#ffc400ff",
+        "#ffc400ff",
+        "#ffc300ff",
+        "#ffc200ff",
+        "#ffc200ff",
+        "#ffc100ff",
+        "#ffc000ff",
+        "#ffbf00ff",
+        "#ffbf00ff",
+        "#ffbe00ff",
+        "#ffbd00ff",
+        "#ffbd00ff",
+        "#ffbc00ff",
+        "#ffbb00ff",
+        "#ffba00ff",
+        "#ffba00ff",
+        "#ffb900ff",
+        "#ffb800ff",
+        "#ffb700ff",
+        "#ffb700ff",
+        "#ffb600ff",
+        "#ffb500ff",
+        "#ffb500ff",
+        "#ffb400ff",
+        "#ffb300ff",
+        "#ffb200ff",
+        "#ffb200ff",
+        "#ffb100ff",
+        "#ffb000ff",
+        "#ffaf00ff",
+        "#ffaf00ff",
+        "#ffae00ff",
+        "#ffad00ff",
+        "#ffad00ff",
+        "#ffac00ff",
+        "#ffab00ff",
+        "#ffaa00ff",
+        "#ffaa00ff",
+        "#ffa900ff",
+        "#ffa800ff",
+        "#ffa800ff",
+        "#ffa700ff",
+        "#ffa600ff",
+        "#ffa500ff",
+        "#ffa400ff",
+        "#ffa300ff",
+        "#ffa100ff",
+        "#ffa000ff",
+        "#ff9f00ff",
+        "#ff9e00ff",
+        "#ff9c00ff",
+        "#ff9b00ff",
+        "#ff9a00ff",
+        "#ff9800ff",
+        "#ff9700ff",
+        "#ff9600ff",
+        "#ff9400ff",
+        "#ff9300ff",
+        "#ff9200ff",
+        "#ff9000ff",
+        "#ff8f00ff",
+        "#ff8e00ff",
+        "#ff8c00ff",
+        "#ff8b00ff",
+        "#ff8a00ff",
+        "#ff8800ff",
+        "#ff8700ff",
+        "#ff8600ff",
+        "#ff8400ff",
+        "#ff8300ff",
+        "#ff8200ff",
+        "#ff8000ff",
+        "#ff7f00ff",
+        "#ff7e00ff",
+        "#ff7c00ff",
+        "#ff7b00ff",
+        "#ff7a00ff",
+        "#ff7800ff",
+        "#ff7700ff",
+        "#ff7600ff",
+        "#ff7400ff",
+        "#ff7300ff",
+        "#ff7200ff",
+        "#ff7000ff",
+        "#ff6f00ff",
+        "#ff6e00ff",
+        "#ff6c00ff",
+        "#ff6b00ff",
+        "#ff6a00ff",
+        "#ff6800ff",
+        "#ff6700ff",
+        "#ff6600ff",
+        "#ff6400ff",
+        "#ff6300ff",
+        "#ff6200ff",
+        "#ff6000ff",
+        "#ff5f00ff",
+        "#ff5e00ff",
+        "#ff5c00ff",
+        "#ff5b00ff",
+        "#ff5a00ff",
+        "#ff5800ff",
+        "#ff5700ff",
+        "#ff5600ff",
+        "#ff5400ff",
+        "#ff5300ff",
+        "#ff5200ff",
+        "#ff5000ff",
+        "#ff4f00ff",
+        "#ff4e00ff",
+        "#ff4d00ff",
+        "#ff4b00ff",
+        "#ff4a00ff",
+        "#ff4900ff",
+        "#ff4700ff",
+        "#ff4600ff",
+        "#ff4500ff",
+        "#ff4300ff",
+        "#ff4200ff",
+        "#ff4100ff",
+        "#ff3f00ff",
+        "#ff3e00ff",
+        "#ff3d00ff",
+        "#ff3b00ff",
+        "#ff3a00ff",
+        "#ff3900ff",
+        "#ff3700ff",
+        "#ff3600ff",
+        "#ff3500ff",
+        "#ff3300ff",
+        "#ff3200ff",
+        "#ff3100ff",
+        "#ff2f00ff",
+        "#ff2e00ff",
+        "#ff2d00ff",
+        "#ff2b00ff",
+        "#ff2a00ff",
+        "#ff2900ff",
+        "#ff2700ff",
+        "#ff2600ff",
+        "#ff2500ff",
+        "#ff2300ff",
+        "#ff2200ff",
+        "#ff2100ff",
+        "#ff1f00ff",
+        "#ff1e00ff",
+        "#ff1d00ff",
+        "#ff1b00ff",
+        "#ff1a00ff",
+        "#ff1900ff",
+        "#ff1700ff",
+        "#ff1600ff",
+        "#ff1500ff",
+        "#ff1300ff",
+        "#ff1200ff",
+        "#ff1100ff",
+        "#ff0f00ff",
+        "#ff0e00ff",
+        "#ff0d00ff",
+        "#ff0b00ff",
+        "#ff0a00ff",
+        "#ff0900ff",
+        "#ff0700ff",
+        "#ff0600ff",
+        "#ff0500ff",
+        "#ff0300ff",
+        "#ff0200ff",
+        "#ff0100ff",
+        "#ff0000ff",
+      ]);
+
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.x = d3.scale
+      .linear()
+      .domain([0.0, 13265.525960706113])
+      .range([0, 450 - 50]);
+
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.legend = L.control({
+      position: "topright",
+    });
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.legend.onAdd = function (map) {
+      var div = L.DomUtil.create("div", "legend");
+      return div;
+    };
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.legend.addTo(
+      map_00f78431f7922a453fb8a5487c940708
+    );
+
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.xAxis = d3.svg
+      .axis()
+      .scale(color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.x)
+      .orient("top")
+      .tickSize(1)
+      .tickValues([
+        0.0, 3316.381490176528, 6632.762980353056, 9949.144470529583,
+        13265.525960706113,
+      ]);
+
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.svg = d3
+      .select(".legend.leaflet-control")
+      .append("svg")
+      .attr("id", "legend")
+      .attr("width", 450)
+      .attr("height", 40);
+
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.g =
+      color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.svg
+        .append("g")
+        .attr("class", "key")
+        .attr("fill", "black")
+        .attr("transform", "translate(25,16)");
+
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.g
+      .selectAll("rect")
+      .data(
+        color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.color
+          .range()
+          .map(function (d, i) {
+            return {
+              x0: i
+                ? color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.x(
+                    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.color.domain()[
+                      i - 1
+                    ]
+                  )
+                : color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.x.range()[0],
+              x1:
+                i <
+                color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.color.domain().length
+                  ? color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.x(
+                      color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.color.domain()[
+                        i
+                      ]
+                    )
+                  : color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.x.range()[1],
+              z: d,
+            };
+          })
+      )
+      .enter()
+      .append("rect")
+      .attr("height", 40 - 30)
+      .attr("x", function (d) {
+        return d.x0;
+      })
+      .attr("width", function (d) {
+        return d.x1 - d.x0;
+      })
+      .style("fill", function (d) {
+        return d.z;
+      });
+
+    color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.g
+      .call(color_map_2516cd33cc829d7fac7aa1e66ebfe7a2.xAxis)
+      .append("text")
+      .attr("class", "caption")
+      .attr("y", 21)
+      .attr("fill", "black")
+      .text("Oil Production (m\u00b3)");
+
+    // Add hash change handler
+    window.addEventListener("hashchange", function () {
+      const wellId = decodeURIComponent(location.hash.slice(1));
+      zoomToWell(wellId);
+    });
+
+    // Function to zoom to a well
+    function zoomToWell(wellId) {
+      const marker = wellMarkers[wellId];
+      const coords = wellCoordinates[wellId];
+      if (marker && coords) {
+        map_00f78431f7922a453fb8a5487c940708.setView(coords, 15);
+        marker.openPopup();
+      }
+    }
+
+    // Handle direct links with hash
+    if (location.hash) {
+      const wellId = decodeURIComponent(location.hash.slice(1));
+      setTimeout(() => zoomToWell(wellId), 1000);
+    }
+  </script>
+</html>
